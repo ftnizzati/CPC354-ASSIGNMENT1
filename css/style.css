@@ -1,0 +1,19 @@
+html,body {
+  height: 100%;
+  margin: 0;
+  background: #111;
+  color: #ddd;
+  font-family: sans-serif;
+}
+#info {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
