@@ -114,22 +114,22 @@ function main(){
   }
 
   const btn = document.getElementById("animateBtn");
-    btn.addEventListener("click", () => {
-    if (!isAnimating) {
-      // RESET animation states every time we start again
-      stage = 0;
-      rotY = 0;
-      lastTime = 0;
-    }
-
-    isAnimating = !isAnimating;
-
-    if (isAnimating) {
-      requestAnimationFrame(animate);
-      btn.textContent = "Stop";
-    } else {
-      btn.textContent = "Animate";
-    }
+      btn.addEventListener("click", () => {
+        if (!isAnimating) {
+          if (stage === 4) {
+            stage = 0;
+            rotY = 0;
+          }
+          lastTime = 0;  // always reset timer
+        }
+        isAnimating = !isAnimating;  // toggle start/stop
+        if (isAnimating) {
+        lastTime = 0;               // reset timer
+        requestAnimationFrame(animate);
+        btn.textContent = "Stop";   // update button text
+        } else {
+        btn.textContent = "Animate";
+        }
   });
 
 
