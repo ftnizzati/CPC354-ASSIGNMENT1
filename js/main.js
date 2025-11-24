@@ -16,7 +16,7 @@ function createProgram(gl,vs,fs){
   gl.linkProgram(p);
   return p;
 }
-//got changes
+
 
 function main(){
   const canvas = document.getElementById("canvas");
@@ -30,7 +30,7 @@ function main(){
   const colLoc  = gl.getAttribLocation(program, "a_color");
   const matLoc  = gl.getUniformLocation(program, "u_matrix");
 
-  // === Geometry ===
+  // Geometry 
   const positions=[], colors=[];
   const depth=40, spacing=40, w=100, h=150;
   const startX = -(w*3 + spacing*2)/2;
@@ -65,17 +65,18 @@ function main(){
   let scaleStart = 0; // starting time for scaling
   const scaleDuration = 1.5; //in seconds
 
-  const fov = (Math.PI/4);
-  const fl = 1/Math.tan(fov/2);
-  const objectHeight = h;
-  const targetCoverage = 0.9;
-  scaleFullScreen = (targetCoverage*2*dist)/(objectHeight*fl);
+  const fov = (Math.PI/4); //field of view, make camera see 45 degree vertically
+  const fl = 1/Math.tan(fov/2); // focal length, convert between object size and screen size at given distance
+  const objectHeight = h; //height of object
+  const targetCoverage = 0.9; //desired coverage for scaling, about 90%
+  scaleFullScreen = (targetCoverage*2*dist)/(objectHeight*fl);//scale needed when height is 90% at distance dist.
 
+  //Animation function
   function animate(t) {
-    if (!isAnimating) return;
+    if (!isAnimating) return; //stop animation if flag is false
 
     if (!lastTime) lastTime = t;
-    const dt = (t - lastTime) / 1000;
+    const dt = (t - lastTime) / 1000; //delta time in secs
     lastTime = t;
 
     // ---- STAGE 0: 0 → +180 ----
@@ -117,22 +118,23 @@ function main(){
     else if (stage === 4){
       if (scaleStart === 0) scaleStart = t;
 
-      const progress = Math.min((t-scaleStart)/(scaleDuration*1000),1);
+      const progress = Math.min((t-scaleStart)/(scaleDuration*1000),1); //see how long we have been in stage 4 in miliseconds, progress goes from 0 to 1 over time
 
-      const ease = 1 - Math.pow(1-progress,3);
-      scaleModel = 1 + (scaleFullScreen - 1) * ease;
+      const ease = 1 - Math.pow(1-progress,3); //ease out cubic, makes linear motion look smoother
+      scaleModel = 1 + (scaleFullScreen - 1) * ease;//scale interpolation, when ease is 0, scale is 1. When ease is 1, scale becomes full screen.
 
       if (progress >= 1){
-        stage = 5;
+        stage = 5; //move to continuous rotation
       }
     }
 
     else if (stage === 5){
-      rotY += (0.3 * dt);
+      rotY += (0.3 * dt); // for every frame, rotate little by little based on how much time has passed.
+      // rotY is rotation angle around y-axis, dt is time since last frame and 0.3 is rotation speed.
     }
 
-    draw();
-    requestAnimationFrame(animate);
+    draw(); //render scene
+    requestAnimationFrame(animate); //next frame
   }
 
   const animateBtn = document.getElementById("animateBtn");
@@ -142,7 +144,7 @@ function main(){
             rotY = 0;
             scaleModel = 1;
             scaleStart = 0;
-            lastTime = 0;  // always reset timer
+            lastTime = 0;  // reset animation if stopped
         }
 
         isAnimating = !isAnimating;  // toggle start/stop
@@ -151,13 +153,13 @@ function main(){
         animateBtn.textContent = "Stop";   // update button text
         requestAnimationFrame(animate);
         } else {
-        animateBtn.textContent = "Animate";
+        animateBtn.textContent = "Animate"; //reset button label
         }
   });
   const resetBtn = document.getElementById("resetBtn");
       resetBtn.addEventListener("click", () => {
-        isAnimating = false;
-        animateBtn.textContent = "Animate";
+        isAnimating = false; //stop animation
+        animateBtn.textContent = "Animate"; //reset button label
 
         rotX = 0;
         rotY = 0;
@@ -166,7 +168,7 @@ function main(){
         scaleStart = 0;
         lastTime = 0; 
         
-        draw();
+        draw(); //redraw letters at initial state
       });
 
 
@@ -191,14 +193,14 @@ function main(){
     m = m4.xRotate(m,rotX);
     m = m4.yRotate(m,rotY);
 
-    //scale
+    //scaling
     const s = scaleModel;
     m = m4.multiply(m, new Float32Array([
       s,0,0,0,
       0,s,0,0,
       0,0,s,0,
       0,0,0,1
-    ]));
+    ])); //apply uniform scaling. x,y,z are scaled by s
 
     gl.uniformMatrix4fv(matLoc, false, m);
 
