@@ -16,6 +16,7 @@ function createProgram(gl,vs,fs){
   gl.linkProgram(p);
   return p;
 }
+//got changes
 
 function main(){
   const canvas = document.getElementById("canvas");
@@ -51,12 +52,24 @@ function main(){
   gl.enable(gl.DEPTH_TEST);
 
   let rotX=0, rotY=0, dist=600;
-
+  
   let isAnimating = false;   // track if animation is running
   let stage = 0;  // 0: +180, 1: back to 0, 2: -180, 3: back to 0
-  const speed = Math.PI; // 180° per second
+  const speed = Math.PI/2; // rotation speed in radians/sec
 
   let lastTime = 0;
+
+  //scaling
+  let scaleModel = 1;
+  let scaleFullScreen = 1; //full screen scale
+  let scaleStart = 0; // starting time for scaling
+  const scaleDuration = 1.5; //in seconds
+
+  const fov = (Math.PI/4);
+  const fl = 1/Math.tan(fov/2);
+  const objectHeight = h;
+  const targetCoverage = 0.9;
+  scaleFullScreen = (targetCoverage*2*dist)/(objectHeight*fl);
 
   function animate(t) {
     if (!isAnimating) return;
@@ -100,37 +113,61 @@ function main(){
         stage = 4;
       }
     }
+    // ---- STAGE 4: Scale to Full Screen ----
+    else if (stage === 4){
+      if (scaleStart === 0) scaleStart = t;
 
-    // ---- DONE ----
-    else if (stage === 4) {
-      isAnimating = false;
-      btn.textContent = "Animate";
-      draw();
-      return;
+      const progress = Math.min((t-scaleStart)/(scaleDuration*1000),1);
+
+      const ease = 1 - Math.pow(1-progress,3);
+      scaleModel = 1 + (scaleFullScreen - 1) * ease;
+
+      if (progress >= 1){
+        stage = 5;
+      }
+    }
+
+    else if (stage === 5){
+      rotY += (0.3 * dt);
     }
 
     draw();
     requestAnimationFrame(animate);
   }
 
-  const btn = document.getElementById("animateBtn");
-      btn.addEventListener("click", () => {
+  const animateBtn = document.getElementById("animateBtn");
+      animateBtn.addEventListener("click", () => {
         if (!isAnimating) {
-          if (stage === 4) {
             stage = 0;
             rotY = 0;
-          }
-          lastTime = 0;  // always reset timer
+            scaleModel = 1;
+            scaleStart = 0;
+            lastTime = 0;  // always reset timer
         }
+
         isAnimating = !isAnimating;  // toggle start/stop
+
         if (isAnimating) {
-        lastTime = 0;               // reset timer
+        animateBtn.textContent = "Stop";   // update button text
         requestAnimationFrame(animate);
-        btn.textContent = "Stop";   // update button text
         } else {
-        btn.textContent = "Animate";
+        animateBtn.textContent = "Animate";
         }
   });
+  const resetBtn = document.getElementById("resetBtn");
+      resetBtn.addEventListener("click", () => {
+        isAnimating = false;
+        animateBtn.textContent = "Animate";
+
+        rotX = 0;
+        rotY = 0;
+        stage = 0;
+        scaleModel = 1;
+        scaleStart = 0;
+        lastTime = 0; 
+        
+        draw();
+      });
 
 
 
@@ -153,6 +190,15 @@ function main(){
     m = m4.translate(m,0,0,-dist);
     m = m4.xRotate(m,rotX);
     m = m4.yRotate(m,rotY);
+
+    //scale
+    const s = scaleModel;
+    m = m4.multiply(m, new Float32Array([
+      s,0,0,0,
+      0,s,0,0,
+      0,0,s,0,
+      0,0,0,1
+    ]));
 
     gl.uniformMatrix4fv(matLoc, false, m);
 
