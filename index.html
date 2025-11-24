@@ -8,11 +8,15 @@
     <body>
         <button id="animateBtn">Animate</button>
         <button id="resetBtn">Reset</button>
-        <canvas id="canvas"></canvas>
-        <button id="slowBtn">Slow</button>
-        <button id="normalBtn">Normal</button>
-        <button id="fastBtn">Fast</button>
 
+        <label for="speedSelect">Speed:</label>
+        <select id="speedSelect">
+            <option value="0.5">Slow (0.5x)</option>
+            <option value="1.0" selected>Normal (1.0x)</option>
+            <option value="2.0">Fast (2.0x)</option>
+            <option value="3.0">Very Fast (3.0x)</option>
+        </select>
+        <canvas id="canvas"></canvas>
 
         <script type="module" src="js/main.js"></script>
     </body>

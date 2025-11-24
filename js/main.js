@@ -1,7 +1,7 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
-import { controlPanel } from './controlPanel.js';
+import { controlPanel, animationSpeed } from './controlPanel.js';
 
 
 function createShader(gl,type,src){
@@ -83,7 +83,7 @@ function main(){
 
     // ---- STAGE 0: 0 → +180 ----
     if (stage === 0) {
-      rotY += speed * dt;
+      rotY += speed * animationSpeed * dt;
       if (rotY >= Math.PI) {
         rotY = Math.PI;
         stage = 1;
@@ -92,7 +92,7 @@ function main(){
 
     // ---- STAGE 1: +180 → 0 ----
     else if (stage === 1) {
-      rotY -= speed * dt;
+      rotY -= speed * animationSpeed * dt;
       if (rotY <= 0) {
         rotY = 0;
         stage = 2;
@@ -101,7 +101,7 @@ function main(){
 
     // ---- STAGE 2: 0 → -180 ----
     else if (stage === 2) {
-      rotY -= speed * dt;
+      rotY -= speed * animationSpeed * dt;
       if (rotY <= -Math.PI) {
         rotY = -Math.PI;
         stage = 3;
@@ -110,7 +110,7 @@ function main(){
 
     // ---- STAGE 3: -180 → 0 ----
     else if (stage === 3) {
-      rotY += speed * dt;
+      rotY += speed * animationSpeed * dt;
       if (rotY >= 0) {
         rotY = 0;
         stage = 4;
@@ -131,7 +131,7 @@ function main(){
     }
 
     else if (stage === 5){
-      rotY += (0.3 * dt); // for every frame, rotate little by little based on how much time has passed.
+      rotY += (0.3 * animationSpeed * dt); // for every frame, rotate little by little based on how much time has passed.
       // rotY is rotation angle around y-axis, dt is time since last frame and 0.3 is rotation speed.
     }
 
