@@ -218,6 +218,7 @@ function main(){
 
   draw();
   window.addEventListener("resize", draw);
+
 }
 
 main();
