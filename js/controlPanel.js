@@ -1,8 +1,8 @@
 // js/controlPanel.js
-
 export let animationSpeed = 1.0;   // global shared variable
 
 export function controlPanel() {
+// ------- Speed Drop-Down Menu -------------
     const speedSelect = document.getElementById("speedSelect");
 
     speedSelect.addEventListener("change", (e) => {
