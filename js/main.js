@@ -1,6 +1,8 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
+import { controlPanel } from './controlPanel.js';
+
 
 function createShader(gl,type,src){
   const s = gl.createShader(type);
@@ -218,6 +220,8 @@ function main(){
 
   draw();
   window.addEventListener("resize", draw);
+
+  controlPanel();
 
 }
 
