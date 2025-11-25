@@ -1,21 +1,36 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
-import { controlPanel, animationSpeed, colorF, colorI, colorT } from './controlPanel.js';
+import { controlPanel, animationSpeed, colorF, colorI, colorT, colorMode } from './controlPanel.js';
 
-
-function createShader(gl,type,src){
+function createShader(gl, type, src) {
   const s = gl.createShader(type);
-  gl.shaderSource(s,src);
+  gl.shaderSource(s, src);
   gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.error("Shader compile error:",  gl.getShaderInfoLog(s));
+    gl.deleteShader(s);
+    return null;  // Return null on failure
+  }
   return s;
 }
 
-function createProgram(gl,vs,fs){
+function createProgram(gl, vs, fs) {
   const p = gl.createProgram();
-  gl.attachShader(p, createShader(gl, gl.VERTEX_SHADER, vs));
-  gl.attachShader(p, createShader(gl, gl.FRAGMENT_SHADER, fs));
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vs);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fs);
+  if (!vertexShader || !fragmentShader) {
+    console.error("Failed to create shaders");
+    return null;  // Early exit if shaders failed
+  }
+  gl.attachShader(p, vertexShader);
+  gl.attachShader(p, fragmentShader);
   gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+    console.error("Program link error:", gl.getProgramInfoLog(p));
+    gl.deleteProgram(p);
+    return null;  // Return null on failure
+  }
   return p;
 }
 
@@ -40,6 +55,8 @@ function main(){
   const posLoc  = gl.getAttribLocation(program, "a_position");
   const colLoc  = gl.getUniformLocation(program, "u_color");
   const matLoc  = gl.getUniformLocation(program, "u_matrix");
+  const modeLoc = gl.getUniformLocation(program, "u_mode");
+
 
   // Geometry 
   const positions=[];
@@ -199,6 +216,7 @@ function main(){
     resize();
     gl.clearColor(0.06,0.06,0.06,1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
 
     let m = m4.perspective(Math.PI/4, canvas.width/canvas.height, 1, 4000);
     m = m4.translate(m,0,0,-dist);
@@ -221,17 +239,27 @@ function main(){
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
-     // Draw letter F with its color
-    gl.uniform4fv(colLoc, hexToRgbArray(colorF));
-    gl.drawArrays(gl.TRIANGLES, beforeF / 3, fCount);
+    let modeVal = 0;
+    if (colorMode === "solid") modeVal = 0;
+    else if (colorMode === "gradient") modeVal = 1;
+    else if (colorMode === "rainbow") modeVal = 2;
+    gl.uniform1i(modeLoc, modeVal);
 
-    // Draw letter I with its color
-    gl.uniform4fv(colLoc, hexToRgbArray(colorI));
-    gl.drawArrays(gl.TRIANGLES, afterF / 3, iCount);
+    if (modeVal === 0) {
+      // Solid mode: per-letter colors
+      gl.uniform4fv(colLoc, hexToRgbArray(colorF));
+      gl.drawArrays(gl.TRIANGLES, Math.floor(beforeF/3), Math.floor(fCount));
 
-    // Draw letter T with its color
-    gl.uniform4fv(colLoc, hexToRgbArray(colorT));
-    gl.drawArrays(gl.TRIANGLES, beforeT / 3, tCount);
+      gl.uniform4fv(colLoc, hexToRgbArray(colorI));
+      gl.drawArrays(gl.TRIANGLES, Math.floor(beforeI/3), Math.floor(iCount));
+
+      gl.uniform4fv(colLoc, hexToRgbArray(colorT));
+      gl.drawArrays(gl.TRIANGLES, Math.floor(beforeT/3), Math.floor(tCount));
+    } else {
+      // Gradient or Rainbow: draw all geometry with shader-generated colors
+      gl.drawArrays(gl.TRIANGLES, 0, positions.length/3);
+    }
+
   }
 
   draw();

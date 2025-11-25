@@ -3,6 +3,7 @@ export let animationSpeed = 1.0;   // global shared variable
 export let colorF = "#ff0000";
 export let colorI = "#00ff00";
 export let colorT = "#0000ff";
+export let colorMode = "solid";
 
 export function changeColor(color) {
     // Update your WebGL color here
@@ -20,19 +21,13 @@ export function controlPanel() {
 
 // ------- Color Picker Submit Button -------
        // ===== COLOR PICKERS =====
-      document.getElementById("colorF").addEventListener("input", e => {
-        colorF = e.target.value;
-    });
+    document.getElementById("colorF").addEventListener("input", e => colorF = e.target.value);
+    document.getElementById("colorI").addEventListener("input", e => colorI = e.target.value);
+    document.getElementById("colorT").addEventListener("input", e => colorT = e.target.value);
 
-    document.getElementById("colorI").addEventListener("input", e => {
-        colorI = e.target.value;
-    });
+    document.getElementById("speedSelect").addEventListener("change", e => {animationSpeed = parseFloat(e.target.value);});
 
-    document.getElementById("colorT").addEventListener("input", e => {
-        colorT = e.target.value;
-    });
+    //------- Adding More Colour Nodes -------
+    document.getElementById("colorMode").addEventListener("change", e => colorMode = e.target.value);
 
-    document.getElementById("speedSelect").addEventListener("change", e => {
-        animationSpeed = parseFloat(e.target.value);
-    });
 }
