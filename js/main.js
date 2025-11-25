@@ -1,7 +1,7 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
-import { controlPanel, animationSpeed } from './controlPanel.js';
+import { controlPanel, animationSpeed, colorF, colorI, colorT } from './controlPanel.js';
 
 
 function createShader(gl,type,src){
@@ -19,6 +19,15 @@ function createProgram(gl,vs,fs){
   return p;
 }
 
+function hexToRgbArray(hex) {
+  // --- CHANGED/ADDED: helper to convert #RRGGBB -> normalized rgba ---
+  return [
+    parseInt(hex.substring(1, 3), 16) / 255,
+    parseInt(hex.substring(3, 5), 16) / 255,
+    parseInt(hex.substring(5, 7), 16) / 255,
+    1.0
+  ];
+}
 
 function main(){
   const canvas = document.getElementById("canvas");
@@ -29,27 +38,34 @@ function main(){
   gl.useProgram(program);
 
   const posLoc  = gl.getAttribLocation(program, "a_position");
-  const colLoc  = gl.getAttribLocation(program, "a_color");
+  const colLoc  = gl.getUniformLocation(program, "u_color");
   const matLoc  = gl.getUniformLocation(program, "u_matrix");
 
   // Geometry 
-  const positions=[], colors=[];
+  const positions=[];
   const depth=40, spacing=40, w=100, h=150;
   const startX = -(w*3 + spacing*2)/2;
   const startY = -h/2;
 
-  buildLetterF(startX, startY, depth, positions, colors);
-  buildLetterI(startX+w+spacing, startY, depth, positions, colors);
-  buildLetterT(startX+(w+spacing)*2, startY, depth, positions, colors);
+  const beforeF = positions.length;
+  buildLetterF(startX, startY, depth, positions);
+  const afterF = positions.length;
+  const fCount = (afterF - beforeF) / 3;
+
+  const beforeI = positions.length;
+  buildLetterI(startX + w + spacing, startY, depth, positions);
+  const afterI = positions.length;
+  const iCount = (afterI - beforeI) / 3;
+
+  const beforeT = positions.length;
+  buildLetterT(startX + (w + spacing) * 2, startY, depth, positions);
+  const afterT = positions.length;
+  const tCount = (afterT - beforeT) / 3;
 
   // solid buffers
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-  const colorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(colors), gl.STATIC_DRAW);
 
   gl.enable(gl.DEPTH_TEST);
 
@@ -72,6 +88,8 @@ function main(){
   const objectHeight = h; //height of object
   const targetCoverage = 0.9; //desired coverage for scaling, about 90%
   scaleFullScreen = (targetCoverage*2*dist)/(objectHeight*fl);//scale needed when height is 90% at distance dist.
+
+   controlPanel();
 
   //Animation function
   function animate(t) {
@@ -167,7 +185,6 @@ function main(){
       });
 
 
-
   function resize(){
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.clientWidth * dpr;
@@ -204,17 +221,21 @@ function main(){
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.enableVertexAttribArray(colLoc);
-    gl.vertexAttribPointer(colLoc, 4, gl.UNSIGNED_BYTE, true, 0, 0);
+     // Draw letter F with its color
+    gl.uniform4fv(colLoc, hexToRgbArray(colorF));
+    gl.drawArrays(gl.TRIANGLES, beforeF / 3, fCount);
 
-    gl.drawArrays(gl.TRIANGLES,0,positions.length/3);
+    // Draw letter I with its color
+    gl.uniform4fv(colLoc, hexToRgbArray(colorI));
+    gl.drawArrays(gl.TRIANGLES, afterF / 3, iCount);
+
+    // Draw letter T with its color
+    gl.uniform4fv(colLoc, hexToRgbArray(colorT));
+    gl.drawArrays(gl.TRIANGLES, beforeT / 3, tCount);
   }
 
   draw();
   window.addEventListener("resize", draw);
-
-  controlPanel();
 
 }
 
