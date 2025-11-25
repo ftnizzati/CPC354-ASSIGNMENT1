@@ -141,18 +141,11 @@ function main(){
 
   const animateBtn = document.getElementById("animateBtn");
       animateBtn.addEventListener("click", () => {
-        if (!isAnimating) {
-            stage = 0;
-            rotY = 0;
-            scaleModel = 1;
-            scaleStart = 0;
-            lastTime = 0;  // reset animation if stopped
-        }
-
         isAnimating = !isAnimating;  // toggle start/stop
 
         if (isAnimating) {
         animateBtn.textContent = "Stop";   // update button text
+        lastTime = 0;
         requestAnimationFrame(animate);
         } else {
         animateBtn.textContent = "Animate"; //reset button label
