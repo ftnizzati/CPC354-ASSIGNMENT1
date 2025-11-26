@@ -122,6 +122,8 @@ function main(){
 
    controlPanel();
 
+   document.getElementById("speedSelect").addEventListener("change", (e) => {animationSpeed = parseFloat(e.target.value); });
+
   //Animation function
   function animate(t) {
     if (!isAnimating) return; //stop animation if flag is false
