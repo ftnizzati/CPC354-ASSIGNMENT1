@@ -154,8 +154,8 @@ function main(){
         return;
 
       case "bounce":
-        rotY = Math.sin(t * 0.002) * 1.5;
-        scaleModel = 1 + Math.sin(t * 0.003) * 0.15;
+        rotY = Math.sin(t * 0.002 * animationSpeed) * 1.5;
+        scaleModel = 1 + Math.sin(t * 0.003 * animationSpeed) * 0.15;
 
         draw();
         requestAnimationFrame(animate);
@@ -217,7 +217,7 @@ function main(){
     }
 
     else if (stage === 5){
-      rotY += (0.3 * animationSpeed * dt); // for every frame, rotate little by little based on how much time has passed.
+      rotY += (speed * animationSpeed * dt); // for every frame, rotate little by little based on how much time has passed.
       // rotY is rotation angle around y-axis, dt is time since last frame and 0.3 is rotation speed.
     }
 
