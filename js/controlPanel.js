@@ -30,10 +30,4 @@ export function controlPanel() {
     //------- Adding More Colour Nodes -------
     document.getElementById("colorMode").addEventListener("change", e => colorMode = e.target.value);
 
-    // ------- Extrusion Slider -------
-    document.getElementById("extrusionSlider").addEventListener("input", e => {
-        extrusion = parseFloat(e.target.value);
-        console.log("Extrusion changed to:", extrusion);
-    });
-
 }
