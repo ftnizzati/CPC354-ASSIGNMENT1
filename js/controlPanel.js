@@ -1,14 +1,17 @@
 // js/controlPanel.js
 export let animationSpeed = 1.0;   // global shared variable
-export let colorF = "#ff0000";
-export let colorI = "#00ff00";
-export let colorT = "#0000ff";
-export let colorMode = "solid";
+export const colorState = {
+  colorF: "#ff0000",
+  colorI: "#00ff00",
+  colorT: "#0000ff",
+  colorMode: "solid"
+};
 export let extrusion = 1.0; // added for 3D text thickness
 
+// ********* tak perlu ada pon takpa *******
 export function changeColor(color) {
     // Update your WebGL color here
-    console.log("Applying color:", color);
+   console.log("Applying color:", color);
 }
 
 export function updateExtrusion(value) {
@@ -22,11 +25,12 @@ export function controlPanel() {
     const speedSelect = document.getElementById("speedSelect");
 
     // ------- Color Pickers -------
-    document.getElementById("colorF").addEventListener("input", e => colorF = e.target.value);
-    document.getElementById("colorI").addEventListener("input", e => colorI = e.target.value);
-    document.getElementById("colorT").addEventListener("input", e => colorT = e.target.value);
+    document.getElementById("colorF").addEventListener("input", e => colorState.colorF = e.target.value);
+    document.getElementById("colorI").addEventListener("input", e => colorState.colorI = e.target.value);
+    document.getElementById("colorT").addEventListener("input", e => colorState.colorT = e.target.value);
 
-    document.getElementById("colorMode").addEventListener("change", e => colorMode = e.target.value);
+    // ------ Adding More Color Mode ---------
+    document.getElementById("colorMode").addEventListener("change", e => colorState.colorMode = e.target.value);
 
     // ------- Extrusion Slider -------
     const extrusionSlider = document.getElementById("extrusionSlider");

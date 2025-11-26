@@ -1,7 +1,7 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
-import { controlPanel, animationSpeed, colorF, colorI, colorT, colorMode } from './controlPanel.js';
+import { controlPanel, animationSpeed, colorState } from './controlPanel.js';
 
 function createShader(gl, type, src) {
   const s = gl.createShader(type);
@@ -197,7 +197,19 @@ function main(){
         scaleModel = 1;
         scaleStart = 0;
         lastTime = 0; 
-        
+
+        // Reset colors to initial values (from controlPanel.js defaults)
+        colorState.colorF = "#ff0000";
+        colorState.colorI = "#00ff00";
+        colorState.colorT = "#0000ff";
+        colorState.colorMode = "solid";
+
+        // Update HTML controls
+        document.getElementById("colorF").value = colorState.colorF;
+        document.getElementById("colorI").value = colorState.colorI;
+        document.getElementById("colorT").value = colorState.colorT;
+        document.getElementById("colorMode").value = colorState.colorMode;
+
         draw(); //redraw letters at initial state
       });
 
@@ -239,21 +251,21 @@ function main(){
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
-    let modeVal = 0;
-    if (colorMode === "solid") modeVal = 0;
-    else if (colorMode === "gradient") modeVal = 1;
-    else if (colorMode === "rainbow") modeVal = 2;
+    let modeVal = 
+    colorState.colorMode === "gradient" ? 1 :
+    colorState.colorMode === "rainbow" ? 2 : 0;
+
     gl.uniform1i(modeLoc, modeVal);
 
     if (modeVal === 0) {
       // Solid mode: per-letter colors
-      gl.uniform4fv(colLoc, hexToRgbArray(colorF));
+      gl.uniform4fv(colLoc, hexToRgbArray(colorState.colorF));
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeF/3), Math.floor(fCount));
 
-      gl.uniform4fv(colLoc, hexToRgbArray(colorI));
+      gl.uniform4fv(colLoc, hexToRgbArray(colorState.colorI));
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeI/3), Math.floor(iCount));
 
-      gl.uniform4fv(colLoc, hexToRgbArray(colorT));
+      gl.uniform4fv(colLoc, hexToRgbArray(colorState.colorT));
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeT/3), Math.floor(tCount));
     } else {
       // Gradient or Rainbow: draw all geometry with shader-generated colors
