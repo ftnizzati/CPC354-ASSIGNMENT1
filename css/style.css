@@ -13,8 +13,8 @@ html,body {
   pointer-events: none;
 }
 canvas {
-  width: 800px;
   height: 600px;
+  width: 900px;
   display: block;
   margin: auto;
 }

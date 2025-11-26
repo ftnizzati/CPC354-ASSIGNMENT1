@@ -1,6 +1,6 @@
 // js/controlPanel.js
 export let animationSpeed = 1.0;   // global shared variable
-export const colorState = {
+export let colorState = {
   colorF: "#ff0000",
   colorI: "#00ff00",
   colorT: "#0000ff",

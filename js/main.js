@@ -1,7 +1,7 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
-import { controlPanel, animationSpeed, colorState } from './controlPanel.js';
+import { controlPanel, animationSpeed as newSpeed, colorState } from './controlPanel.js';
 
 function createShader(gl, type, src) {
   const s = gl.createShader(type);
@@ -43,6 +43,7 @@ function hexToRgbArray(hex) {
     1.0
   ];
 }
+
 
 function main(){
   const canvas = document.getElementById("canvas");
@@ -87,11 +88,9 @@ function main(){
   gl.enable(gl.DEPTH_TEST);
 
   let rotX=0, rotY=0, dist=600;
-  
   let isAnimating = false;   // track if animation is running
   let stage = 0;  // 0: +180, 1: back to 0, 2: -180, 3: back to 0
-  const speed = Math.PI/2; // rotation speed in radians/sec
-
+  let speed = Math.PI/2; // rotation speed in radians/sec
   let lastTime = 0;
 
   //scaling
@@ -99,6 +98,21 @@ function main(){
   let scaleFullScreen = 1; //full screen scale
   let scaleStart = 0; // starting time for scaling
   const scaleDuration = 1.5; //in seconds
+
+  let animationPath = "full";
+  let animationSpeed = newSpeed;
+
+  document.getElementById("animationPath").addEventListener("change", (e) => {animationPath = e.target.value;
+
+      // Reset animation when path changes
+      stage = 0;
+      rotY = 0;
+      scaleModel = 1;
+      scaleStart = 0;
+      lastTime = 0;
+
+      draw();
+  });
 
   const fov = (Math.PI/4); //field of view, make camera see 45 degree vertically
   const fl = 1/Math.tan(fov/2); // focal length, convert between object size and screen size at given distance
@@ -115,6 +129,41 @@ function main(){
     if (!lastTime) lastTime = t;
     const dt = (t - lastTime) / 1000; //delta time in secs
     lastTime = t;
+
+    // >>>>> Animation Path Selector <<<<<<<<<
+        switch (animationPath) {
+
+      case "rotate":
+        rotY += speed * animationSpeed * dt;
+        draw();
+        requestAnimationFrame(animate);
+        return;
+
+      case "scale":
+        if (scaleStart === 0) scaleStart = t;
+
+        let p = Math.min((t - scaleStart) / (scaleDuration * 1000), 1);
+        let ease = 1 - Math.pow(1 - p, 3);
+
+        scaleModel = 1 + (scaleFullScreen - 1) * ease;
+
+        draw();
+        requestAnimationFrame(animate);
+        return;
+
+      case "bounce":
+        rotY = Math.sin(t * 0.002) * 1.5;
+        scaleModel = 1 + Math.sin(t * 0.003) * 0.15;
+
+        draw();
+        requestAnimationFrame(animate);
+        return;
+
+      case "full":
+      default:
+        // Continue to your original Stage 0 → 5 logic
+        break;
+    }
 
     // ---- STAGE 0: 0 → +180 ----
     if (stage === 0) {
@@ -209,6 +258,14 @@ function main(){
         document.getElementById("colorI").value = colorState.colorI;
         document.getElementById("colorT").value = colorState.colorT;
         document.getElementById("colorMode").value = colorState.colorMode;
+
+        // set speed 1.0 as default after reset
+        animationSpeed = 1.0;
+        document.getElementById("speedSelect").value = "1.0";
+
+        // reset animation path as full animation
+        animationPath = "full";
+        document.getElementById("animationPath").value = "full";
 
         draw(); //redraw letters at initial state
       });

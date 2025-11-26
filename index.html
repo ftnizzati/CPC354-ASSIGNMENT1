@@ -26,10 +26,19 @@
 
         <label for="colorMode">Color Mode:</label>
         <select id="colorMode">
-        <option value="solid" selected>Solid</option>
-        <option value="gradient">Gradient</option>
-        <option value="rainbow">Rainbow</option>
+            <option value="solid" selected>Solid</option>
+            <option value="gradient">Gradient</option>
+            <option value="rainbow">Rainbow</option>
         </select>
+
+        <label>Animation Path:</label>
+        <select id="animationPath">
+            <option value="full">Full Sequence</option>
+            <option value="rotate">Rotate Only</option>
+            <option value="scale">Scale Up</option>
+            <option value="bounce">Bounce</option>
+        </select>
+
 
         <label for="extrusionSlider">Extrusion:</label>
 <input type="range" id="extrusionSlider" min="0" max="5" step="0.1" value="1.0">
