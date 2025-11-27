@@ -42,6 +42,29 @@ function hexToRgbArray(hex) {
   ];
 }
 
+function hexToRgbVec3(hex) {    // for gradient
+  return new Float32Array([
+    parseInt(hex.substring(1, 3), 16) / 255,
+    parseInt(hex.substring(3, 5), 16) / 255,
+    parseInt(hex.substring(5, 7), 16) / 255
+  ]);
+}
+
+// ---- new function for gradient -------
+function darkenHex(hex, factor = 0.4) {
+  const r = Math.round(parseInt(hex.substring(1,3),16) * factor);
+  const g = Math.round(parseInt(hex.substring(3,5),16) * factor);
+  const b = Math.round(parseInt(hex.substring(5,7),16) * factor);
+  return [
+    r / 255,
+    g / 255,
+    b / 255,
+    1.0
+  ];
+}
+
+let minF, maxF, minI, maxI, minT, maxT;
+
 function main() {
   const canvas = document.getElementById("canvas");
   const gl = canvas.getContext("webgl2");
@@ -56,15 +79,32 @@ function main() {
   const matLoc  = gl.getUniformLocation(program, "u_matrix");
   const modeLoc = gl.getUniformLocation(program, "u_mode");
 
+   // ⭐ ADDED: gradient uniform locations
+  const startColorLoc = gl.getUniformLocation(program, "u_startColor"); // ⭐ ADDED
+  const endColorLoc   = gl.getUniformLocation(program, "u_endColor");// ⭐ ADDED
+
+  const u_colorTopLoc    = gl.getUniformLocation(program, "u_colorTop");    // >>> add this
+  const u_colorMiddleLoc = gl.getUniformLocation(program, "u_colorMiddle"); // >>> add this
+  const u_colorBottomLoc = gl.getUniformLocation(program, "u_colorBottom"); // >>> add this
+
+  // >>> add this: uniforms for gradient Y mapping
+  const u_gradMinYLoc = gl.getUniformLocation(program, "u_gradMinY");      // >>> add this
+  const u_gradHeightLoc = gl.getUniformLocation(program, "u_gradHeight");   // >>> add this
+
   // geometry rebuildable
   let positions = [];
   let beforeF, beforeI, beforeT;
+  let afterF, afterI, afterT;
   let fCount, iCount, tCount;
   let currentDepth = 40;
 
   const positionBuffer = gl.createBuffer();
 
-   let rotX = 0, rotY = 0;
+  const spacing = 40, w = 100, h = 150;                // >>> add this (kept constants)
+  const startX = -(w * 3 + spacing * 2) / 2;           // >>> add this
+  const startY = -h / 2; 
+
+  let rotX = 0, rotY = 0;
   let dist = 600;
 
   let scaleModel = 1;
@@ -90,24 +130,28 @@ function main() {
     positions = [];
     currentDepth = depth;
 
-    const spacing = 40, w = 100, h = 150;
-    const startX = -(w * 3 + spacing * 2) / 2;
-    const startY = -h / 2;
-
     beforeF = positions.length;
     buildLetterF(startX, startY, depth, positions);
-    fCount = (positions.length - beforeF) / 3;
+    afterF = positions.length;
+    fCount = (afterF - beforeF) / 3;
 
     beforeI = positions.length;
     buildLetterI(startX + w + spacing, startY, depth, positions);
-    iCount = (positions.length - beforeI) / 3;
+    afterI = positions.length;
+    iCount = (afterI - beforeI) / 3; 
 
+    // ----- T letter -----
     beforeT = positions.length;
     buildLetterT(startX + (w + spacing) * 2, startY, depth, positions);
-    tCount = (positions.length - beforeT) / 3;
+    afterT = positions.length;
+    tCount = (afterT - beforeT) / 3;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
+
+     // We map object-space Y (startY..startY+h) -> 0..1
+    gl.uniform1f(u_gradMinYLoc, startY);             // >>> add this
+    gl.uniform1f(u_gradHeightLoc, h);   
 
     draw();
   }
@@ -309,6 +353,17 @@ function main() {
       gl.uniform4fv(colLoc, hexToRgbArray(colorState.colorT));
       gl.drawArrays(gl.TRIANGLES, beforeT/3, tCount);
     }
+    else if (modeVal === 1) {
+      gl.uniform3fv(u_colorTopLoc,    hexToRgbVec3(colorState.colorT));    // >>> add this
+      gl.uniform3fv(u_colorMiddleLoc, hexToRgbVec3(colorState.colorI));    // >>> add this
+      gl.uniform3fv(u_colorBottomLoc, hexToRgbVec3(colorState.colorF));    // >>> add this
+
+      // draw all letters (each letter uses the same vertical mapping but its local vertices determine their blend)
+      gl.drawArrays(gl.TRIANGLES, Math.floor(beforeF/3), Math.floor(fCount));
+      gl.drawArrays(gl.TRIANGLES, Math.floor(beforeI/3), Math.floor(iCount));
+      gl.drawArrays(gl.TRIANGLES, Math.floor(beforeT/3), Math.floor(tCount));
+    }
+    
     else {
       gl.drawArrays(gl.TRIANGLES, 0, positions.length / 3);
     }

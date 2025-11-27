@@ -16,9 +16,6 @@ export function updateExtrusion(value) {
     }
 }
 
-//export function changeColor(color) {
-//}
-
 
 export function controlPanel() {
     // ------- Speed Drop-Down Menu -------------
@@ -54,19 +51,19 @@ export function controlPanel() {
     }
 
     // ------- Animation Speed Live Display -------
-    if (speedSelect) {
+    //if (speedSelect) {
         // Create live display for speed
-        let speedDisplay = document.createElement("span");
-        speedDisplay.id = "speedValueDisplay";
-        speedDisplay.style.marginLeft = "10px";
-        speedDisplay.textContent = animationSpeed.toFixed(1) + "x"; // initial value
-        speedSelect.parentNode.insertBefore(speedDisplay, speedSelect.nextSibling);
+      //  let speedDisplay = document.createElement("span");
+        //speedDisplay.id = "speedValueDisplay";
+       // speedDisplay.style.marginLeft = "10px";
+       // speedDisplay.textContent = animationSpeed.toFixed(1) + "x"; // initial value
+       // speedSelect.parentNode.insertBefore(speedDisplay, speedSelect.nextSibling);
 
-        speedSelect.addEventListener("change", e => {
-            animationSpeed = parseFloat(e.target.value);
-            speedDisplay.textContent = animationSpeed.toFixed(1) + "x";
-        });
-    }
+       // speedSelect.addEventListener("change", e => {
+         //   animationSpeed = parseFloat(e.target.value);
+           // speedDisplay.textContent = animationSpeed.toFixed(1) + "x";
+       // });
+  //  }
 }
  
 
