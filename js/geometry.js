@@ -77,3 +77,10 @@ export function buildLetterT(x, y, d, pos) {
   buildBox(x + w/2 - t/2, y + t, t, h - t, d, pos);
 }
 
+export let LETTER_DEPTH = 40;   // default depth — animation controls can modify
+
+export function setDepth(value) {
+  LETTER_DEPTH = value;
+}
+
+
