@@ -16,8 +16,8 @@ export function updateExtrusion(value) {
     }
 }
 
-export function changeColor(color) {
-}
+//export function changeColor(color) {
+//}
 
 
 export function controlPanel() {
