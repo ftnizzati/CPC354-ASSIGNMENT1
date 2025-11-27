@@ -5,6 +5,27 @@ html,body {
   color: #ddd;
   font-family: sans-serif;
 }
+
+button{
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px; 
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: 0.25s;
+  font-weight: 500;
+}
+
+
+#resetBtn{
+  background: red;
+  border-color: white;
+  color: white;
+}
+#resetBtn:hover{
+  background: #ff3b3b;
+}
+
 #info {
   position: absolute;
   left: 10px;
