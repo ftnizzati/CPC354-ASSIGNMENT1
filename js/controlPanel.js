@@ -8,7 +8,15 @@ export let colorState = {
 };
 export let extrusion = 1.0; // added for 3D text thickness
 
-// ********* tak perlu ada pon takpa *******
+export function updateExtrusion(value) {
+    extrusion = value;
+
+    if (typeof window.updateTextExtrusion === "function") {
+        window.updateTextExtrusion(value);
+    }
+
+    console.log("Extrusion updated:", value);
+}
 export function changeColor(color) {
     // Update your WebGL color here
    console.log("Applying color:", color);
@@ -33,20 +41,23 @@ export function controlPanel() {
     document.getElementById("colorMode").addEventListener("change", e => colorState.colorMode = e.target.value);
 
     // ------- Extrusion Slider -------
-    const extrusionSlider = document.getElementById("extrusionSlider");
+     const extrusionSlider = document.getElementById("extrusionSlider");
+
     if (extrusionSlider) {
-        // Create live display for extrusion value
+
         let extrusionDisplay = document.createElement("span");
         extrusionDisplay.id = "extrusionValueDisplay";
         extrusionDisplay.style.marginLeft = "10px";
-        extrusionDisplay.textContent = extrusion; // initial value
+        extrusionDisplay.textContent = extrusion.toFixed(1);
         extrusionSlider.parentNode.insertBefore(extrusionDisplay, extrusionSlider.nextSibling);
 
         extrusionSlider.addEventListener("input", e => {
-            extrusion = parseFloat(e.target.value);
-            extrusionDisplay.textContent = extrusion.toFixed(1);
-            updateExtrusion(extrusion); // update WebGL 3D text live
-            console.log("Extrusion live update:", extrusion);
+            let newValue = parseFloat(e.target.value);
+
+            extrusion = newValue;
+            extrusionDisplay.textContent = newValue.toFixed(1);
+
+            updateExtrusion(newValue);  
         });
     }
 
