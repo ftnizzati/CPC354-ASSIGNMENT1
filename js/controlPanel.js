@@ -11,17 +11,12 @@ export let extrusion = 1.0; // added for 3D text thickness
 export function updateExtrusion(value) {
     extrusion = value;
 
-    // Update 3D scene if function exists
     if (typeof window.updateTextExtrusion === "function") {
         window.updateTextExtrusion(value);
     }
-
-    console.log("Updating extrusion in real-time:", value);
 }
 
 export function changeColor(color) {
-    // Update your WebGL color here
-   console.log("Applying color:", color);
 }
 
 
@@ -70,10 +65,8 @@ export function controlPanel() {
         speedSelect.addEventListener("change", e => {
             animationSpeed = parseFloat(e.target.value);
             speedDisplay.textContent = animationSpeed.toFixed(1) + "x";
-            // Call your animation speed update function if available
-            // Example: updateSpeed(animationSpeed);
-            console.log("Animation speed live update:", animationSpeed);
         });
     }
 }
  
+
