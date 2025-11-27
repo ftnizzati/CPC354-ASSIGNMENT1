@@ -155,7 +155,7 @@ function main(){
       resetBtn.addEventListener("click", () => {
         isAnimating = false; //stop animation
         animateBtn.textContent = "Animate"; //reset button label
-
+        
         rotX = 0;
         rotY = 0;
         stage = 0;
