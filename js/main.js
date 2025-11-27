@@ -1,7 +1,7 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 import { m4 } from "./m4.js";
 import { buildLetterF, buildLetterI, buildLetterT } from "./geometry.js";
-import { controlPanel, animationSpeed, colorF, colorI, colorT, colorMode } from './controlPanel.js';
+import { controlPanel, animationSpeed, colorState } from './controlPanel.js';
 
 function createShader(gl, type, src) {
   const s = gl.createShader(type);
@@ -52,29 +52,41 @@ function main(){
   const matLoc  = gl.getUniformLocation(program,"u_matrix");
   const modeLoc = gl.getUniformLocation(program,"u_mode");
 
-  // ========== Build Geometry ==========
-  const positions=[];
-  const depth=40, spacing=40, w=100, h=150;
+  const spacing=40, w=100, h=150;
   const startX=-(w*3+spacing*2)/2, startY=-h/2;
 
-  const beforeF=positions.length;
-  buildLetterF(startX,startY,depth,positions);
-  const afterF=positions.length;
-  const fCount=(afterF-beforeF)/3;
+  let positions = [];
+  let beforeF, afterF, fCount;
+  let beforeI, afterI, iCount;
+  let beforeT, afterT, tCount;
+  let currentDepth = 40;
 
-  const beforeI=positions.length;
-  buildLetterI(startX+w+spacing,startY,depth,positions);
-  const afterI=positions.length;
-  const iCount=(afterI-beforeI)/3;
+  const positionBuffer = gl.createBuffer();
 
-  const beforeT=positions.length;
-  buildLetterT(startX+(w+spacing)*2,startY,depth,positions);
-  const afterT=positions.length;
-  const tCount=(afterT-beforeT)/3;
+  function rebuildGeometry(depth) {
+    currentDepth = depth;
+    positions = [];
 
-  const positionBuffer=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.STATIC_DRAW);
+    beforeF = positions.length;
+    buildLetterF(startX, startY, depth, positions);
+    afterF = positions.length;
+    fCount = (afterF - beforeF) / 3;
+
+    beforeI = positions.length;
+    buildLetterI(startX + w + spacing, startY, depth, positions);
+    afterI = positions.length;
+    iCount = (afterI - beforeI) / 3;
+
+    beforeT = positions.length;
+    buildLetterT(startX + (w + spacing) * 2, startY, depth, positions);
+    afterT = positions.length;
+    tCount = (afterT - beforeT) / 3;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
+  }
+
+  rebuildGeometry(currentDepth);
 
   gl.enable(gl.DEPTH_TEST);
 
@@ -83,43 +95,44 @@ function main(){
   const speed=Math.PI/2;
   let lastTime=0;
 
-  // Scaling
   let scaleModel=1, scaleFullScreen=1, scaleStart=0;
   const scaleDuration=1.5;
   const fov=Math.PI/4, fl=1/Math.tan(fov/2);
   const targetCoverage=0.9;
   scaleFullScreen=(targetCoverage*2*dist)/(h*fl);
 
+  window.updateTextExtrusion = function(value) {
+    const newDepth = value * 40;
+    rebuildGeometry(newDepth);
+    if (!isAnimating) {
+      draw();
+    }
+  };
+
   controlPanel();
 
-  // ============ Animation ==============
   function animate(t){
     if(!isAnimating) return;
     if(!lastTime) lastTime=t;
     const dt=(t-lastTime)/1000;
     lastTime=t;
 
-    // Stage 0: Rotate +180°
     if(stage===0){
       rotY+=speed*animationSpeed*dt;
       if(rotY>=Math.PI){rotY=Math.PI;stage=1;}
     }
-    // Stage 1: Return to center
     else if(stage===1){
       rotY-=speed*animationSpeed*dt;
       if(rotY<=0){rotY=0;stage=2;}
     }
-    // Stage 2: Rotate -180°
     else if(stage===2){
       rotY-=speed*animationSpeed*dt;
       if(rotY<=-Math.PI){rotY=-Math.PI;stage=3;}
     }
-    // Stage 3: Back to center
     else if(stage===3){
       rotY+=speed*animationSpeed*dt;
       if(rotY>=0){rotY=0;stage=4;}
     }
-    // Stage 4: Scale to fullscreen
     else if(stage===4){
       if(scaleStart===0) scaleStart=t;
       const p=Math.min((t-scaleStart)/(scaleDuration*1000),1);
@@ -127,7 +140,6 @@ function main(){
       scaleModel=1+(scaleFullScreen-1)*ease;
       if(p>=1) stage=5;
     }
-    // Stage 5: Idle continuous motion
     else if(stage===5){
       rotY+=0.3*animationSpeed*dt;
     }
@@ -136,7 +148,6 @@ function main(){
     requestAnimationFrame(animate);
   }
 
-  // ============ BUTTONS ===============
   const animateBtn=document.getElementById("animateBtn");
   animateBtn.addEventListener("click",()=>{
     isAnimating=!isAnimating;
@@ -155,7 +166,6 @@ function main(){
     draw();
   });
 
-  // ============ DRAW =============
   function resize(){
     const dpr=window.devicePixelRatio||1;
     const w=canvas.clientWidth*dpr, h2=canvas.clientHeight*dpr;
@@ -188,15 +198,15 @@ function main(){
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc,3,gl.FLOAT,false,0,0);
 
-    let modeVal=(colorMode==="solid"?0:colorMode==="gradient"?1:2);
+    let modeVal=(colorState.colorMode==="solid"?0:colorState.colorMode==="gradient"?1:2);
     gl.uniform1i(modeLoc,modeVal);
 
     if(modeVal===0){
-      gl.uniform4fv(colLoc,hexToRgbArray(colorF));
+      gl.uniform4fv(colLoc,hexToRgbArray(colorState.colorF));
       gl.drawArrays(gl.TRIANGLES,beforeF/3,fCount);
-      gl.uniform4fv(colLoc,hexToRgbArray(colorI));
+      gl.uniform4fv(colLoc,hexToRgbArray(colorState.colorI));
       gl.drawArrays(gl.TRIANGLES,beforeI/3,iCount);
-      gl.uniform4fv(colLoc,hexToRgbArray(colorT));
+      gl.uniform4fv(colLoc,hexToRgbArray(colorState.colorT));
       gl.drawArrays(gl.TRIANGLES,beforeT/3,tCount);
     } else {
       gl.drawArrays(gl.TRIANGLES,0,positions.length/3);
