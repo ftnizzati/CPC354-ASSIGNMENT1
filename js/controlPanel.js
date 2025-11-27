@@ -11,22 +11,19 @@ export let extrusion = 1.0; // added for 3D text thickness
 export function updateExtrusion(value) {
     extrusion = value;
 
+    // Update 3D scene if function exists
     if (typeof window.updateTextExtrusion === "function") {
         window.updateTextExtrusion(value);
     }
 
-    console.log("Extrusion updated:", value);
+    console.log("Updating extrusion in real-time:", value);
 }
+
 export function changeColor(color) {
     // Update your WebGL color here
    console.log("Applying color:", color);
 }
 
-export function updateExtrusion(value) {
-    // Connect this to your 3D scene logic
-    console.log("Updating extrusion in real-time:", value);
-    // Example: my3DLogo.setExtrusion(value);
-}
 
 export function controlPanel() {
     // ------- Speed Drop-Down Menu -------------
