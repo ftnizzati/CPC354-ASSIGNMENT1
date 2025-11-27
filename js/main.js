@@ -188,6 +188,7 @@ function main() {
     animationSpeed = parseFloat(e.target.value);
   });
 
+
   // MAIN ANIMATION LOOP
   function animate(t) {
     if (!isAnimating) return;
@@ -208,6 +209,10 @@ function main() {
         const p1 = Math.min((t - scaleStart) / (1.5 * 1000), 1);
         const e1 = 1 - Math.pow(1 - p1, 3);
         scaleModel = 1 + (scaleFullScreen - 1) * e1;
+
+        // >>> add this: rotate while scaling
+        rotY += Math.PI/4 * animationSpeed * dt;  // rotate around Y
+        //rotX += Math.PI/8 * animationSpeed * dt;  // rotate around X
         break;
 
       case "bounce":
@@ -314,6 +319,7 @@ function main() {
   }
 
   function draw() {
+    window.draw = draw;
     resize();
     gl.clearColor(0.06, 0.06, 0.06, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -338,8 +344,7 @@ function main() {
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
-    let modeVal = colorState.colorMode === "gradient" ? 1 :
-                  colorState.colorMode === "rainbow"  ? 2 : 0;
+    let modeVal = colorState.colorMode === "gradient" ? 1 : colorState.colorMode === "rainbow"  ? 2 : 0;
 
     gl.uniform1i(modeLoc, modeVal);
 

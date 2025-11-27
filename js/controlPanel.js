@@ -21,13 +21,33 @@ export function controlPanel() {
     // ------- Speed Drop-Down Menu -------------
     const speedSelect = document.getElementById("speedSelect");
 
-    // ------- Color Pickers -------
-    document.getElementById("colorF").addEventListener("input", e => colorState.colorF = e.target.value);
-    document.getElementById("colorI").addEventListener("input", e => colorState.colorI = e.target.value);
-    document.getElementById("colorT").addEventListener("input", e => colorState.colorT = e.target.value);
+      // ------- Color Pickers -------
+    const colorPickersDiv = document.getElementById("colorPickers");
 
-    // ------ Adding More Color Mode ---------
-    document.getElementById("colorMode").addEventListener("change", e => colorState.colorMode = e.target.value);
+    // ------- Color Pickers -------
+    document.getElementById("colorF").addEventListener("input", e => {colorState.colorF = e.target.value;
+        if (typeof window.draw === "function") window.draw();   // >>> add this
+    });
+    document.getElementById("colorI").addEventListener("input", e => {colorState.colorI = e.target.value;
+        if (typeof window.draw === "function") window.draw();   // >>> add this
+    });
+    document.getElementById("colorT").addEventListener("input", e => {colorState.colorT = e.target.value;
+        if (typeof window.draw === "function") window.draw();   // >>> add this
+    });
+
+  // ------ Color Mode Dropdown (solid/gradient/rainbow) ---------
+    document.getElementById("colorMode").addEventListener("change", e => {
+        colorState.colorMode = e.target.value;
+
+        // >>> add: show/hide color pickers based on mode
+        if (colorState.colorMode === "rainbow") {
+            colorPickersDiv.style.display = "none";
+        } else {
+            colorPickersDiv.style.display = "block";
+        }
+
+        if (typeof window.draw === "function") window.draw();   // >>> add this
+    });
 
     // ------- Extrusion Slider -------
      const extrusionSlider = document.getElementById("extrusionSlider");
