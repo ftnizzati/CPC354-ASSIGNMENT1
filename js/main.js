@@ -338,4 +338,24 @@ function main(){
 
 }
 
+window.updateTextExtrusion = function(newDepth) {
+    // Rebuild positions array
+    const positions = [];
+    const depth = newDepth; // use extrusion from slider
+    const spacing = 40, w = 100, h = 150;
+    const startX = -(w*3 + spacing*2)/2;
+    const startY = -h/2;
+
+    buildLetterF(startX, startY, depth, positions);
+    buildLetterI(startX + w + spacing, startY, depth, positions);
+    buildLetterT(startX + (w + spacing) * 2, startY, depth, positions);
+
+    // Update buffer with new positions
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    // Redraw scene with new extrusion
+    draw();
+};
+
 main();
