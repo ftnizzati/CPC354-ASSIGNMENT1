@@ -311,6 +311,16 @@ function main() {
     }
   });
 
+
+  // light button
+  const toggleLightBtn = document.getElementById("toggleLightBtn");
+  toggleLightBtn.addEventListener("click", () => {
+      lightOn = !lightOn;
+      gl.uniform1f(u_lightStrengthLoc, lightOn ? 1.0 : 0.0);
+      toggleLightBtn.textContent = `Light: ${lightOn ? "ON" : "OFF"}`;
+      draw();
+  });
+  
   const resetBtn = document.getElementById("resetBtn");
   resetBtn.addEventListener("click", () => {
     isAnimating = false;
@@ -323,15 +333,18 @@ function main() {
     scaleStart = 0;
     lastTime = 0;
 
-    //light button
-    const toggleLightBtn = document.getElementById("toggleLightBtn");
-    toggleLightBtn.addEventListener("click", () => {
-        lightOn = !lightOn;
-        gl.uniform1f(u_lightStrengthLoc, lightOn ? 1.0 : 0.0);
-        toggleLightBtn.textContent = `Light: ${lightOn ? "ON" : "OFF"}`;
-        draw();
-    });
+    // reset extrusion slider to 1.0
+    const extrusionSlider = document.getElementById("extrusionSlider");
+    if (extrusionSlider) {
+        extrusionSlider.value = 1.0;
+        window.updateTextExtrusion(1.0);
+    }
 
+    // turn light OFF
+    lightOn = false;
+    gl.uniform1f(u_lightStrengthLoc, 0.0);
+    toggleLightBtn.textContent = "Light: OFF";
+    
     // restore default colors
     colorState.colorF = "#ff0000";
     colorState.colorI = "#00ff00";
