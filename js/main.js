@@ -99,6 +99,9 @@ function main() {
   gl.uniform3fv(u_lightDirLoc, new Float32Array([0, 0, -1])); 
   gl.uniform1f(u_lightStrengthLoc, 1.0);
 
+  // light on
+  let lightOn = true;
+
 
 
   // geometry rebuildable
@@ -319,6 +322,15 @@ function main() {
     scaleModel = 1;
     scaleStart = 0;
     lastTime = 0;
+
+    //light button
+    const toggleLightBtn = document.getElementById("toggleLightBtn");
+    toggleLightBtn.addEventListener("click", () => {
+        lightOn = !lightOn;
+        gl.uniform1f(u_lightStrengthLoc, lightOn ? 1.0 : 0.0);
+        toggleLightBtn.textContent = `Light: ${lightOn ? "ON" : "OFF"}`;
+        draw();
+    });
 
     // restore default colors
     colorState.colorF = "#ff0000";
