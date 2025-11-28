@@ -25,6 +25,16 @@ export function buildBox(x, y, w, h, d, pos) {
     [x+w,y,zf, x+w,y+h,zf, x+w,y+h,zb, x+w,y,zf,   x+w,y+h,zb,   x+w,y,zb],
   ];
 
+  // Normals for each face
+  const faceNormals = [
+    [ 0,  0, -1], // Front
+    [ 0,  0,  1], // Back
+    [ 0, -1,  0], // Top
+    [ 0,  1,  0], // Bottom
+    [-1,  0,  0], // Left
+    [ 1,  0,  0], // Right
+  ];
+  
   // Push positions (webgl y-axis inverted → -y)
   for (const f of faces) {
     for (let i = 0; i < f.length; i += 3) {
@@ -77,6 +87,7 @@ export function buildLetterT(x, y, d, pos) {
   buildBox(x + w/2 - t/2, y + t, t, h - t, d, pos);
 }
 
+// Letter depths (for extrusion slider)
 export let LETTER_DEPTH = 40;   // default depth — animation controls can modify
 
 export function setDepth(value) {

@@ -91,6 +91,16 @@ function main() {
   const u_gradMinYLoc = gl.getUniformLocation(program, "u_gradMinY");      // >>> add this
   const u_gradHeightLoc = gl.getUniformLocation(program, "u_gradHeight");   // >>> add this
 
+  // added for lighting
+  const normalLoc = gl.getAttribLocation(program, "a_normal");            
+  const u_lightDirLoc      = gl.getUniformLocation(program, "u_lightDir");      
+  const u_lightStrengthLoc = gl.getUniformLocation(program, "u_lightStrength"); 
+
+  // default light setup
+  gl.uniform3fv(u_lightDirLoc, new Float32Array([0.5, 0.7, 1.0])); 
+  gl.uniform1f(u_lightStrengthLoc, 1.0);
+
+
   // geometry rebuildable
   let positions = [];
   let beforeF, beforeI, beforeT;
@@ -99,6 +109,7 @@ function main() {
   let currentDepth = 40;
 
   const positionBuffer = gl.createBuffer();
+  const normalBuffer   = gl.createBuffer();
 
   const spacing = 40, w = 100, h = 150;                // >>> add this (kept constants)
   const startX = -(w * 3 + spacing * 2) / 2;           // >>> add this
@@ -128,6 +139,7 @@ function main() {
 
   function rebuildGeometry(depth) {
     positions = [];
+    const normals = [];
     currentDepth = depth;
 
     beforeF = positions.length;
@@ -146,8 +158,32 @@ function main() {
     afterT = positions.length;
     tCount = (afterT - beforeT) / 3;
 
+    // ⭐ NEW: compute flat normals per triangle
+    for (let i = 0; i < positions.length; i += 9) {          
+      const ax = positions[i],   ay = positions[i+1], az = positions[i+2];
+      const bx = positions[i+3], by = positions[i+4], bz = positions[i+5];
+      const cx = positions[i+6], cy = positions[i+7], cz = positions[i+8];
+
+      const ux = bx - ax, uy = by - ay, uz = bz - az;
+      const vx = cx - ax, vy = cy - ay, vz = cz - az;
+
+      const nx = uy*vz - uz*vy;
+      const ny = uz*vx - ux*vz;
+      const nz = ux*vy - uy*vx;
+
+      const len = Math.hypot(nx, ny, nz) || 1;
+      const nnx = nx/len, nny = ny/len, nnz = nz/len;
+
+      for (let j = 0; j < 3; j++) normals.push(nnx, nny, nnz);
+    }
+
+
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
+
+    // ⭐ NEW: upload normals
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.DYNAMIC_DRAW);
 
      // We map object-space Y (startY..startY+h) -> 0..1
     gl.uniform1f(u_gradMinYLoc, startY);             // >>> add this
@@ -344,6 +380,13 @@ function main() {
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
+    // bind normals attribute safely (TS-safe)
+    if (normalLoc >= 0) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+      gl.enableVertexAttribArray(normalLoc);
+      gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+    }
+    
     let modeVal = colorState.colorMode === "gradient" ? 1 : colorState.colorMode === "rainbow"  ? 2 : 0;
 
     gl.uniform1i(modeLoc, modeVal);
