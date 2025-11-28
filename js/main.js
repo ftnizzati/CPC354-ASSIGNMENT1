@@ -95,8 +95,10 @@ function main() {
   const u_lightStrengthLoc = gl.getUniformLocation(program, "u_lightStrength"); 
 
   // default light setup
-  gl.uniform3fv(u_lightDirLoc, new Float32Array([0.5, 0.7, 1.0])); 
+  // light coming directly from front
+  gl.uniform3fv(u_lightDirLoc, new Float32Array([0, 0, -1])); 
   gl.uniform1f(u_lightStrengthLoc, 1.0);
+
 
 
   // geometry rebuildable
