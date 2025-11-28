@@ -63,8 +63,6 @@ function darkenHex(hex, factor = 0.4) {
   ];
 }
 
-let minF, maxF, minI, maxI, minT, maxT;
-
 function main() {
   const canvas = document.getElementById("canvas");
   const gl = canvas.getContext("webgl2");
@@ -330,6 +328,8 @@ function main() {
     document.getElementById("colorI").value = colorState.colorI;
     document.getElementById("colorT").value = colorState.colorT;
     document.getElementById("colorMode").value = colorState.colorMode;
+
+     document.getElementById("colorPickers").style.display = "block";   // >>> add this
 
     // restore default speed
     animationSpeed = 1.0;
