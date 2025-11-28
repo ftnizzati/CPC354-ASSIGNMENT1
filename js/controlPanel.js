@@ -6,6 +6,9 @@ export let colorState = {
   colorT: "#0000ff",
   colorMode: "solid"
 };
+
+export let bgColor = "#000000"; // added for background color
+
 export let extrusion = 1.0; // added for 3D text thickness
 
 export function updateExtrusion(value) {
@@ -49,6 +52,16 @@ export function controlPanel() {
         if (typeof window.draw === "function") window.draw();   // >>> add this
     });
 
+    // ---------- Background Color Picker ----------  
+    const bgColorPicker = document.getElementById("bgColorPicker");  
+    if (bgColorPicker) {                                           
+        bgColorPicker.value = bgColor;                             
+        bgColorPicker.addEventListener("input", e => {            
+            bgColor = e.target.value;                              
+            if (typeof window.draw === "function") window.draw(); 
+        });
+    }
+    
     // ------- Extrusion Slider -------
      const extrusionSlider = document.getElementById("extrusionSlider");
 

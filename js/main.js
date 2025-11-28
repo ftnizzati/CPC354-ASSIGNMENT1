@@ -98,9 +98,10 @@ function main() {
   // light coming directly from front
   gl.uniform3fv(u_lightDirLoc, new Float32Array([0, 0, -1])); 
   gl.uniform1f(u_lightStrengthLoc, 1.0);
+  let lightOn = false;
 
-  // light on
-  let lightOn = true;
+  //default background colour
+  let bgColor = [0, 0, 0, 1];
 
 
 
@@ -228,6 +229,7 @@ function main() {
   });
 
 
+
   // MAIN ANIMATION LOOP
   function animate(t) {
     if (!isAnimating) return;
@@ -320,6 +322,21 @@ function main() {
       toggleLightBtn.textContent = `Light: ${lightOn ? "ON" : "OFF"}`;
       draw();
   });
+
+  // Background color picker
+  const bgColorPicker = document.getElementById("bgColorPicker"); 
+  if (bgColorPicker) {                                           
+      bgColorPicker.addEventListener("input", (e) => {         
+          const hex = e.target.value;                           
+          bgColor = [                                           
+              parseInt(hex.substring(1,3),16)/255,             
+              parseInt(hex.substring(3,5),16)/255,            
+              parseInt(hex.substring(5,7),16)/255,           
+              1.0                                              
+          ];                                                    
+          draw();                                               
+      });                                                       
+  }                   
   
   const resetBtn = document.getElementById("resetBtn");
   resetBtn.addEventListener("click", () => {
@@ -366,6 +383,11 @@ function main() {
     animationPath = "full";
     document.getElementById("animationPath").value = "full";
 
+    // restore default background
+    bgColor = [0, 0, 0, 1];
+    if (bgColorPicker) bgColorPicker.value = "#000000";
+
+
     draw();
   });
 
@@ -384,7 +406,7 @@ function main() {
   function draw() {
     window.draw = draw;
     resize();
-    gl.clearColor(0.06, 0.06, 0.06, 1);
+    gl.clearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]); // new
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let m = m4.perspective(fov, canvas.width / canvas.height, 1, 4000);
