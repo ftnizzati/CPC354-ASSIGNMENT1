@@ -50,7 +50,7 @@ function hexToRgbVec3(hex) {    // for gradient
   ]);
 }
 
-// ---- new function for gradient -------
+// ---- function for gradient -------
 function darkenHex(hex, factor = 0.4) {
   const r = Math.round(parseInt(hex.substring(1,3),16) * factor);
   const g = Math.round(parseInt(hex.substring(3,5),16) * factor);
@@ -77,17 +77,17 @@ function main() {
   const matLoc  = gl.getUniformLocation(program, "u_matrix");
   const modeLoc = gl.getUniformLocation(program, "u_mode");
 
-   // ⭐ ADDED: gradient uniform locations
-  const startColorLoc = gl.getUniformLocation(program, "u_startColor"); // ⭐ ADDED
-  const endColorLoc   = gl.getUniformLocation(program, "u_endColor");// ⭐ ADDED
+   // gradient uniform locations
+  const startColorLoc = gl.getUniformLocation(program, "u_startColor");
+  const endColorLoc   = gl.getUniformLocation(program, "u_endColor");
 
-  const u_colorTopLoc    = gl.getUniformLocation(program, "u_colorTop");    // >>> add this
-  const u_colorMiddleLoc = gl.getUniformLocation(program, "u_colorMiddle"); // >>> add this
-  const u_colorBottomLoc = gl.getUniformLocation(program, "u_colorBottom"); // >>> add this
+  const u_colorTopLoc    = gl.getUniformLocation(program, "u_colorTop");    
+  const u_colorMiddleLoc = gl.getUniformLocation(program, "u_colorMiddle"); 
+  const u_colorBottomLoc = gl.getUniformLocation(program, "u_colorBottom"); 
 
   // >>> add this: uniforms for gradient Y mapping
-  const u_gradMinYLoc = gl.getUniformLocation(program, "u_gradMinY");      // >>> add this
-  const u_gradHeightLoc = gl.getUniformLocation(program, "u_gradHeight");   // >>> add this
+  const u_gradMinYLoc = gl.getUniformLocation(program, "u_gradMinY");      
+  const u_gradHeightLoc = gl.getUniformLocation(program, "u_gradHeight");   
 
   // added for lighting
   const normalLoc = gl.getAttribLocation(program, "a_normal");            
@@ -115,8 +115,8 @@ function main() {
   const positionBuffer = gl.createBuffer();
   const normalBuffer   = gl.createBuffer();
 
-  const spacing = 40, w = 100, h = 150;                // >>> add this (kept constants)
-  const startX = -(w * 3 + spacing * 2) / 2;           // >>> add this
+  const spacing = 40, w = 100, h = 150;              
+  const startX = -(w * 3 + spacing * 2) / 2;           
   const startY = -h / 2; 
 
   let rotX = 0, rotY = 0;
@@ -162,7 +162,7 @@ function main() {
     afterT = positions.length;
     tCount = (afterT - beforeT) / 3;
 
-    // ⭐ NEW: compute flat normals per triangle
+    // compute flat normals per triangle
     for (let i = 0; i < positions.length; i += 9) {          
       const ax = positions[i],   ay = positions[i+1], az = positions[i+2];
       const bx = positions[i+3], by = positions[i+4], bz = positions[i+5];
@@ -185,12 +185,12 @@ function main() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
 
-    // ⭐ NEW: upload normals
+    // upload normals
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.DYNAMIC_DRAW);
 
      // We map object-space Y (startY..startY+h) -> 0..1
-    gl.uniform1f(u_gradMinYLoc, startY);             // >>> add this
+    gl.uniform1f(u_gradMinYLoc, startY);            
     gl.uniform1f(u_gradHeightLoc, h);   
 
     draw();
@@ -406,7 +406,7 @@ function main() {
   function draw() {
     window.draw = draw;
     resize();
-    gl.clearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]); // new
+    gl.clearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]); 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let m = m4.perspective(fov, canvas.width / canvas.height, 1, 4000);
@@ -451,9 +451,9 @@ function main() {
       gl.drawArrays(gl.TRIANGLES, beforeT/3, tCount);
     }
     else if (modeVal === 1) {
-      gl.uniform3fv(u_colorTopLoc,    hexToRgbVec3(colorState.colorT));    // >>> add this
-      gl.uniform3fv(u_colorMiddleLoc, hexToRgbVec3(colorState.colorI));    // >>> add this
-      gl.uniform3fv(u_colorBottomLoc, hexToRgbVec3(colorState.colorF));    // >>> add this
+      gl.uniform3fv(u_colorTopLoc,    hexToRgbVec3(colorState.colorT));    
+      gl.uniform3fv(u_colorMiddleLoc, hexToRgbVec3(colorState.colorI));    
+      gl.uniform3fv(u_colorBottomLoc, hexToRgbVec3(colorState.colorF));    
 
       // draw all letters (each letter uses the same vertical mapping but its local vertices determine their blend)
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeF/3), Math.floor(fCount));
