@@ -66,8 +66,8 @@ function main() {
   const modeLoc = gl.getUniformLocation(program, "u_mode");
 
    // gradient uniform locations
-  const startColorLoc = gl.getUniformLocation(program, "u_startColor");
-  const endColorLoc   = gl.getUniformLocation(program, "u_endColor");
+  //const startColorLoc = gl.getUniformLocation(program, "u_startColor");
+  //const endColorLoc   = gl.getUniformLocation(program, "u_endColor");
 
   const u_colorTopLoc    = gl.getUniformLocation(program, "u_colorTop");    
   const u_colorMiddleLoc = gl.getUniformLocation(program, "u_colorMiddle"); 
