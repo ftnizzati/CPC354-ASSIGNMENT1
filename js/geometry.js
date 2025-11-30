@@ -1,5 +1,4 @@
 // Build a rectangular 3D box with width w, height h and depth d
-// Adds ONLY positions — color is no longer baked in.
 export function buildBox(x, y, w, h, d, pos) {
   const zf = -d / 2;   // front Z
   const zb =  d / 2;   // back Z
