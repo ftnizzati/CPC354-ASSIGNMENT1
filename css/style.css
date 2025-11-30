@@ -21,8 +21,6 @@ html,body {
 
 .control-panel button,
 .control-panel select,
-.control-panel input[type=color]
-.control-panel input[type=range]
 .control-panel label{
   width: 100%;
   font-size: 16px;
