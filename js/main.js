@@ -352,9 +352,15 @@ function main() {
 
     // reset extrusion slider to 1.0
     const extrusionSlider = document.getElementById("extrusionSlider");
+    const extrusionDisplay = document.getElementById("extrusionValueDisplay");
+
     if (extrusionSlider) {
         extrusionSlider.value = 1.0;
         window.updateTextExtrusion(1.0);
+    }
+
+    if (extrusionDisplay) {
+        extrusionDisplay.textContent = "1.0";
     }
 
     // turn light OFF
