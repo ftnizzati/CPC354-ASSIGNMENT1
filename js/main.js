@@ -73,7 +73,7 @@ function main() {
   const u_colorMiddleLoc = gl.getUniformLocation(program, "u_colorMiddle"); 
   const u_colorBottomLoc = gl.getUniformLocation(program, "u_colorBottom"); 
 
-  // >>> add: uniforms for gradient Y mapping
+  // uniforms for gradient Y mapping
   const u_gradMinYLoc = gl.getUniformLocation(program, "u_gradMinY");      
   const u_gradHeightLoc = gl.getUniformLocation(program, "u_gradHeight");   
 
@@ -110,6 +110,7 @@ function main() {
   let rotX = 0, rotY = 0;
   let dist = 600;
 
+  //scaling variables
   let scaleModel = 1;
   let scaleFullScreen = 1;
   let scaleStart = 0;
@@ -125,9 +126,9 @@ function main() {
 
   // FOV for scaling
   const fov = Math.PI / 4;
-  const fl = 1 / Math.tan(fov / 2);
-  const targetCoverage = 0.9;
-  scaleFullScreen = (targetCoverage * 2 * dist) / (150 * fl);
+  const fl = 1 / Math.tan(fov / 2); //focal length
+  const targetCoverage = 0.9; //percentage of screen height to fill
+  scaleFullScreen = (targetCoverage * 2 * dist) / (150 * fl); //scale that makes model appear full screen
 
   function rebuildGeometry(depth) {
     positions = [];
@@ -234,12 +235,12 @@ function main() {
         break;
 
       case "scale":
-        if (scaleStart === 0) scaleStart = t;
-        const p1 = Math.min((t - scaleStart) / (1.5 * 1000), 1);
-        const e1 = 1 - Math.pow(1 - p1, 3);
-        scaleModel = 1 + (scaleFullScreen - 1) * e1;
+        if (scaleStart === 0) scaleStart = t; //set start time once
+        const p1 = Math.min((t - scaleStart) / (1.5 * 1000), 1); //linear progress goes from 0 to 1 over 1.5 seconds
+        const e1 = 1 - Math.pow(1 - p1, 3); //ease out cubic, from fast to slow
+        scaleModel = 1 + (scaleFullScreen - 1) * e1; //interpolate scale, starting from 1 to full screen
 
-        // >>> add: rotate while scaling
+        // rotate while scaling
         rotY += Math.PI/4 * animationSpeed * dt;  // rotate around Y
         break;
 
@@ -325,9 +326,10 @@ function main() {
       });                                                       
   }                   
   
+  //reset button
   const resetBtn = document.getElementById("resetBtn");
   resetBtn.addEventListener("click", () => {
-    isAnimating = false;
+    isAnimating = false; //stop animation loop
     animateBtn.textContent = "Animate";
 
     rotX = 0;
@@ -407,7 +409,7 @@ function main() {
     m = m4.xRotate(m, rotX);
     m = m4.yRotate(m, rotY);
 
-    // scaling
+    // scale matrix
     const s = scaleModel;
     m = m4.multiply(m, new Float32Array([
       s,0,0,0,
