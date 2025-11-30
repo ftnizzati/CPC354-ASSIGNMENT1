@@ -50,18 +50,6 @@ function hexToRgbVec3(hex) {    // for gradient
   ]);
 }
 
-// ---- function for gradient -------
-function darkenHex(hex, factor = 0.4) {
-  const r = Math.round(parseInt(hex.substring(1,3),16) * factor);
-  const g = Math.round(parseInt(hex.substring(3,5),16) * factor);
-  const b = Math.round(parseInt(hex.substring(5,7),16) * factor);
-  return [
-    r / 255,
-    g / 255,
-    b / 255,
-    1.0
-  ];
-}
 
 function main() {
   const canvas = document.getElementById("canvas");
@@ -85,7 +73,7 @@ function main() {
   const u_colorMiddleLoc = gl.getUniformLocation(program, "u_colorMiddle"); 
   const u_colorBottomLoc = gl.getUniformLocation(program, "u_colorBottom"); 
 
-  // >>> add this: uniforms for gradient Y mapping
+  // >>> add: uniforms for gradient Y mapping
   const u_gradMinYLoc = gl.getUniformLocation(program, "u_gradMinY");      
   const u_gradHeightLoc = gl.getUniformLocation(program, "u_gradHeight");   
 
@@ -251,9 +239,8 @@ function main() {
         const e1 = 1 - Math.pow(1 - p1, 3);
         scaleModel = 1 + (scaleFullScreen - 1) * e1;
 
-        // >>> add this: rotate while scaling
+        // >>> add: rotate while scaling
         rotY += Math.PI/4 * animationSpeed * dt;  // rotate around Y
-        //rotX += Math.PI/8 * animationSpeed * dt;  // rotate around X
         break;
 
       case "bounce":
@@ -352,15 +339,9 @@ function main() {
 
     // reset extrusion slider to 1.0
     const extrusionSlider = document.getElementById("extrusionSlider");
-    const extrusionDisplay = document.getElementById("extrusionValueDisplay");
-
     if (extrusionSlider) {
         extrusionSlider.value = 1.0;
         window.updateTextExtrusion(1.0);
-    }
-
-    if (extrusionDisplay) {
-        extrusionDisplay.textContent = "1.0";
     }
 
     // turn light OFF
@@ -443,7 +424,6 @@ function main() {
     }
     
     let modeVal = colorState.colorMode === "gradient" ? 1 : colorState.colorMode === "rainbow"  ? 2 : 0;
-
     gl.uniform1i(modeLoc, modeVal);
 
     if (modeVal === 0) {
@@ -461,12 +441,12 @@ function main() {
       gl.uniform3fv(u_colorMiddleLoc, hexToRgbVec3(colorState.colorI));    
       gl.uniform3fv(u_colorBottomLoc, hexToRgbVec3(colorState.colorF));    
 
-      // draw all letters (each letter uses the same vertical mapping but its local vertices determine their blend)
+      // draw all letters 
+      // each letter uses the same vertical mapping but its local vertices determine their blend
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeF/3), Math.floor(fCount));
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeI/3), Math.floor(iCount));
       gl.drawArrays(gl.TRIANGLES, Math.floor(beforeT/3), Math.floor(tCount));
-    }
-    
+    }  
     else {
       gl.drawArrays(gl.TRIANGLES, 0, positions.length / 3);
     }

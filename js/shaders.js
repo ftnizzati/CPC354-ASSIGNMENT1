@@ -10,10 +10,6 @@ uniform int u_mode; // 0=solid, 1=gradient, 2=rainbow
 in vec3 a_normal;
 out vec3 v_normal;
 
-// >>> remove this (old per-letter min/max gradient uniforms - removed)
-// uniform float u_letterMinY;
-// uniform float u_letterMaxY;
-
 // >>> add this (new uniforms for vertical mapping)
 uniform float u_gradMinY;    // bottom Y of object-space mapping (startY)
 uniform float u_gradHeight;  // object-space height (h)
@@ -53,7 +49,7 @@ uniform float u_lightStrength;  // brightness multiplier
 uniform vec4 u_color; // solid fallback
 uniform int u_mode;   // 0=solid,1=gradient,2=rainbow
 
-// >>> add this: 3 colors for vertical gradient (vec3)
+//3 colors for vertical gradient (vec3)
 uniform vec3 u_colorTop;    // corresponds to colorF
 uniform vec3 u_colorMiddle; // corresponds to colorI
 uniform vec3 u_colorBottom; // corresponds to colorT
